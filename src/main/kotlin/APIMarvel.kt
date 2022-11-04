@@ -17,26 +17,27 @@ class APIMarvel {
         var listaIDS = mutableListOf<String>()
         while(personaje == null&&i<personajes.length) {
             val cr = personajes.item(i).childNodes
-            val caracteristicas = personajes.item(i).childNodes as Document
+            val caracteristicas = personajes.item(i).childNodes as Element
             val nom = caracteristicas.getElementsByTagName("name").item(0) as Element
             if(nom.textContent == nombre){
                 var id = 0
                 var name = nombre
                 var desc = ""
                 val comicList = mutableListOf<Comic?>()
-                lateinit var nodo: NodeList
+                var nodo: NodeList = personajes
                 for(i in 0..cr.length-1){
                 when(cr.item(i).nodeName){
                     "id" -> id = cr.item(i).textContent.toInt()
                     "description" -> desc = cr.item(i).textContent
                     "comics" -> nodo = cr.item(i).childNodes
                 }
-                val nod = nodo as Document
+                    for(i in 0..nodo.length-1){
+                val nod = nodo.item(i) as Element
                 nodo = nod.getElementsByTagName("resourceURI")}
                 for(i in 0..nodo.length-1){
                     var listaString = nodo.item(i).textContent.split("/")
                     listaIDS.add(listaString[listaString.size-1])
-                }
+                }}
                 for(i in 0..listaIDS.size-1){
                     var comic = buscarComic(listaIDS[i].toInt())
                     comicList.add(comic)
@@ -60,7 +61,7 @@ class APIMarvel {
         var i = 0
         while(comic == null&&i<comics.length) {
             val cm = comics.item(i).childNodes
-            val caracteristicas = comics.item(i).childNodes as Document
+            val caracteristicas = comics.item(i).childNodes as Element
             val nom = caracteristicas.getElementsByTagName("name").item(0) as Element
             if(nom.textContent == id.toString()){
                 var id = id
