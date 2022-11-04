@@ -103,7 +103,6 @@ class APIMarvel {
         } else {
             cod = Codigo.notFound
         }
-        //println(cod)
         return cod
     }
 }
