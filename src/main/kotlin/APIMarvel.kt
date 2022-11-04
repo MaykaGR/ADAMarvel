@@ -10,89 +10,100 @@ class APIMarvel {
     val xmlComics = File("resources${System.getProperty("file.separator")}comicsMarvel.xml")
     val rootPersonajes = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlPersonajes)
     val rootComics = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlComics)
-    fun buscarPersonaje(nombre: String ): Personaje?{
+    fun buscarPersonaje(nombre: String): Personaje? {
         val personajes = rootPersonajes.getElementsByTagName("results")
         var personaje: Personaje? = null
         var i = 0
         var listaIDS = mutableListOf<String>()
-        while(personaje == null&&i<personajes.length) {
+        while (personaje == null && i < personajes.length) {
             val cr = personajes.item(i).childNodes
-            val caracteristicas = personajes.item(i).childNodes as Element
-            val nom = caracteristicas.getElementsByTagName("name").item(0) as Element
-            if(nom.textContent == nombre){
+            var nom = cr.item(0)
+            for (i in 0..cr.length - 1) {
+                if (cr.item(i).nodeName == "name") {
+                    nom = cr.item(i)
+                }
+            }
+
+            if (nom.textContent == nombre) {
                 var id = 0
                 var name = nombre
                 var desc = ""
                 val comicList = mutableListOf<Comic?>()
-                var nodo: NodeList = personajes
-                for(i in 0..cr.length-1){
-                when(cr.item(i).nodeName){
-                    "id" -> id = cr.item(i).textContent.toInt()
-                    "description" -> desc = cr.item(i).textContent
-                    "comics" -> nodo = cr.item(i).childNodes
+                var nodo: NodeList = cr
+                for (i in 0..cr.length - 1) {
+                    when (cr.item(i).nodeName) {
+                        "id" -> id = cr.item(i).textContent.toInt()
+                        "description" -> desc = cr.item(i).textContent
+                        "comics" -> nodo = cr.item(i).childNodes
+                    }
+                    for (i in 0..nodo.length - 1) {
+                        if (nodo.item(i).nodeType == Node.ELEMENT_NODE) {
+                            val nod = nodo.item(i) as Element
+                            var res = nod.getElementsByTagName("resourceURI")
+                            for (j in 0..res.length - 1) {
+                                var listaString = res.item(j).textContent.split("/")
+                                listaIDS.add(listaString[listaString.size - 1])
+                            }
+                        }
+
+                    }
                 }
-                    for(i in 0..nodo.length-1){
-                val nod = nodo.item(i) as Element
-                nodo = nod.getElementsByTagName("resourceURI")}
-                for(i in 0..nodo.length-1){
-                    var listaString = nodo.item(i).textContent.split("/")
-                    listaIDS.add(listaString[listaString.size-1])
-                }}
-                for(i in 0..listaIDS.size-1){
+                for (i in 0..listaIDS.size - 1) {
                     var comic = buscarComic(listaIDS[i].toInt())
                     comicList.add(comic)
                 }
-                personaje = Personaje(id,name,desc,comicList)
+                personaje = Personaje(id, name, desc, comicList)
+            } else {
+                i += 1
             }
-            else{i+=1}
         }
-        if(personaje!=null){
+        if (personaje != null) {
             codigoRespuesta("encontrado")
-        }
-        else{
+        } else {
             codigoRespuesta("noEncontrado")
         }
         return personaje
     }
 
-    fun buscarComic(id: Int): Comic?{
+    fun buscarComic(id: Int): Comic? {
         var comic: Comic? = null
         val comics = rootComics.getElementsByTagName("results")
         var i = 0
-        while(comic == null&&i<comics.length) {
+        while (comic == null && i < comics.length) {
             val cm = comics.item(i).childNodes
             val caracteristicas = comics.item(i).childNodes as Element
             val nom = caracteristicas.getElementsByTagName("name").item(0) as Element
-            if(nom.textContent == id.toString()){
+            if (nom.textContent == id.toString()) {
                 var id = id
                 var title = ""
                 var desc = ""
-                for(i in 0..cm.length-1){
-                    when(cm.item(i).nodeName){
+                for (i in 0..cm.length - 1) {
+                    when (cm.item(i).nodeName) {
                         "description" -> desc = cm.item(i).textContent
                         "title" -> title = cm.item(i).textContent
                     }
-                comic = Comic(id,title,desc)
-            }}
-            else{i+=1}
+                    comic = Comic(id, title, desc)
+                }
+            } else {
+                i += 1
+            }
         }
-        if(comic!=null){
+        if (comic != null) {
             codigoRespuesta("encontrado")
-        }
-        else{
+        } else {
             codigoRespuesta("noEncontrado")
         }
         return comic
     }
-    fun codigoRespuesta(codigo: String): String{
-        var cod = ""
-        if(codigo=="encontrado"){
-            cod = "200"
+
+    fun codigoRespuesta(codigo: String): Number {
+        var cod: Number = 0
+        if (codigo == "encontrado") {
+            cod = Codigo.ok
+        } else {
+            cod = Codigo.notFound
         }
-        else{
-            cod = "404"
-        }
-        println(cod)
+        //println(cod)
         return cod
     }
 }
