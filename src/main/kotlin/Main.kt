@@ -3,13 +3,23 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 fun main() {
     val api = APIMarvel()
-    val busq = api.buscarPersonaje("3-D Man")
-    var c0d: Number = 0
-    if(busq != null){
-        c0d = Codigo.ok
+    var busq = api.buscarPersonaje("3-D Man")
+    var personaje1: Personaje? = null
+    if(busq.containsKey(200)){
+        personaje1 = busq.getValue(200)
+        println(personaje1)
     }
-    else if(busq == null){
-        c0d = Codigo.notFound
+    else println("Personaje no encontrado")
+
+    busq = api.buscarPersonaje("Agent Zero")
+    var personaje2: Personaje? = null
+    if(busq.containsKey(200)){
+        personaje2 = busq.getValue(200)
+        println(personaje2)
     }
-    println(api.buscarPersonaje("3-D Man")?.name)
+    else println("Personaje no encontrado")
+
+    println(api.popularidad(personaje1, personaje2)?.name)
+
+    api.escribirXML(personaje2)
 }
