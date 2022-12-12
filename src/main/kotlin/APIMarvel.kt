@@ -220,7 +220,7 @@ class APIMarvel {
 
 
         val source: Source = DOMSource(personajes)
-        val result = StreamResult(File("resources/personajeGenerado.xml"))
+        val result = StreamResult(File("resources/personajeGenerado"+character?.name?.replace(" ","_")+".xml"))
         val transformer: Transformer = TransformerFactory.newInstance().newTransformer()
         transformer.setOutputProperty(OutputKeys.INDENT,"yes")
 
